@@ -61,35 +61,38 @@ export async function LoginUser(req: Request, res: Response) {
     // validate fields
 
     if (!email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user =  await User.findOne( {email})
+    const user = await User.findOne({ email });
     if (!user) {
-        return res.status(401).json( {message: "Invalid email or password"});
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const isPasswordValid  =  await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-        return res.status(401).json( {message: "Invalid email or password"})
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-   const token = jwt.sign(
-    { userId: user._id },
-    process.env["JWT_SECRET"] as string,
-    { expiresIn: "7d" }
-   );
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env["JWT_SECRET"] as string,
+      { expiresIn: "7d" }
+    );
 
-   return res.status(200).json({
-     message: "Login successful",
-     user: {
-       id: user._id,
-       name: user.name,
-       email: user.email,
-     },
-     token,
-   });
+    return res.status(201).json({
+      message: "Login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      token,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Server error", error });
   }
 }
+
+
+export default {RegisterUser, LoginUser}
